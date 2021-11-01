@@ -1,0 +1,1918 @@
+------------------------------------------------
+-- constants
+------------------------------------------------
+
+zero_vector = Vector(0, 0, 0)
+
+d6_rotations = {
+  Vector({270, 0,   0}),
+  Vector({  0, 0,   0}),
+  Vector({  0, 0, 270}),
+  Vector({  0, 0,  90}),
+  Vector({  0, 0, 180}),
+  Vector({ 90, 0,   0})
+}
+
+------------------------------------------------
+-- reference tables / settings
+------------------------------------------------
+
+script_state_keys = { -- the tables that should be saved to script_state
+  "game_settings",
+  "manual_factions",
+  "open_tableau_tiers"
+}
+
+starting_dice_rotations = {1,0,0,0,2,17}
+
+set_boards_non_interactable = true -- tech/exploration boards only
+
+hidden_pieces_guids = {
+  tech_ref = {"5a329a","fc4370","ad9cf1","46634e"},
+  UI_obj={"efcfce","8323b5","5cf49e","9f2009"}
+}
+
+starting_player_marker = {
+  guid = "91c0fb",
+  offset = Vector({11.5, 0.00, 4.40}) -- Relative to player board
+}
+
+starting_ore = {1, 1, 2, 2}
+
+object_tags_to_recolor = {"Dice", "Disc", "Pawn"}
+
+player_zones = {
+  {
+    hand_zone_guid = "7aead2",
+    scripting_zone_guid = "aab03a",
+    tag = "Player1",
+    filters = {
+      deny_if_any = {"2 Player"}
+    }
+  },
+  {
+    hand_zone_guid = "fd99c3",
+    scripting_zone_guid = "223cc5",
+    tag = "Player2",
+    resource_zone_guid = "46e930",
+    supply_zone_guid = "dab39e"
+  },
+  {
+    hand_zone_guid = "2b99c9",
+    scripting_zone_guid = "fb083f",
+    tag = "Player3",
+    resource_zone_guid = "bf4d91",
+    supply_zone_guid = "de4ee4"
+  },
+  {
+    hand_zone_guid = "b229d1",
+    scripting_zone_guid = "d6a289",
+    tag = "Player4",
+    filters = {
+      deny_if_any = {"2 Player", "3 Player"}
+    }
+  }
+}
+
+generate_position_parameters = {
+  starting_nonsupply_dice = {
+    base = Vector({-8.14, 0.49, 0.42}),
+    offsets = {
+      Vector({0.77, 0.00, 0.00}),
+      Vector({0.00, 0.00, 0.77})
+    }
+  },
+  supply_dice = {
+    base = Vector({-3.03, 0.49, -0.86}),
+    offsets = {
+      Vector({1.3775, 0.00, 0.00}),
+      Vector({0.00, 0.00, 0.8325})
+    }
+  },
+  tech_cards = {
+    base = Vector({-8.46, 0.17, -12.50}),
+    offsets = {
+      Vector({8.73, 0.00, 0.00}),
+      Vector({0.00, 0.00, 4.165})
+    }
+  },
+  tech_dice = {
+    base = Vector({-3.23, 0.32, 1.46}),
+    offsets = {
+      Vector({0.00, 0.00, 0.76})
+    }
+  },
+  pawns = {
+    base = Vector({-20.49, 0.65, 4.56}),
+    offsets = {
+      Vector({0.55, 0.00, 0.00})
+    }
+  },
+  ore = {
+    base = Vector({-6.00, 0.5, 1.25}),
+    offsets = {
+      Vector({0.80, 0.00, 0.00}),
+      Vector({0.00, 0.00, 0.80})
+    }
+  },
+  tableau_cards = {
+    base = Vector({3.50, 0.02, 0.00}),
+    offsets = {
+      Vector({5.33, 0.00, 0.00}),
+      Vector({0.00, 0.00, 4.13})
+    }
+  },
+  tableau_decks = {
+    base = Vector({-3.90, 0.00, 0.00}),
+    offsets = {
+      Vector({0.00, 0.00, 4.13})
+    }
+  }
+}
+
+generate_positions_config = {
+  supply_dice_basic = {
+    params = generate_position_parameters.supply_dice,
+    multipliers = {
+      {0,0},{0,1},{0,2},{0,3},{0,4},
+      {2,0},{2,1},{2,2},{2,3},
+      {4,0},{4,1},{4,2},
+      {6,0},{6,1},{6,2},
+      {8,0},{8,1}
+    }
+  },
+  starting_nonsupply_dice = {
+    params = generate_position_parameters.starting_nonsupply_dice,
+    multipliers = {{0,0},{0,1},{0,2}}
+  },
+  tech_dice = {
+    params = generate_position_parameters.tech_dice,
+    multipliers = {{0},{-1},{-2},{-3}}
+  }
+}
+
+factions = {
+  {
+    name = "Nishida-Ostergaard Corporation",
+    filters = {
+      deny_if_any = {"Pink"}
+    },
+    player_color = "Pink",
+    tint_color = color(245/255, 160/255, 242/255),
+    board_configs = {
+      {
+        state_id = 1,
+        filters = {
+          allow_if_all = {"Basic Factions"}
+        },
+        supply_dice_config = generate_positions_config.supply_dice_basic,
+        after_regular_setup = "afterRegular_Nishida"
+      },
+      {
+        state_id = 2,
+        filters = {
+          allow_if_all = {"Advanced Factions"}
+        },
+        supply_dice_config = {
+          params = generate_position_parameters.supply_dice,
+          multipliers = {
+            {0,0},{0,1},{0,2},{0,3},
+            {2,0},{2,1},{2,2},{2,3},
+            {4,0},{4,1},{4,2},
+            {6,0},{6,1},{6,2},
+            {8,0},{8,1},{8,2}
+          }
+        }
+      }
+    }
+  },
+  {
+    name = "United Nations Of Sol",
+    filters = {
+      deny_if_any = {"Teal"}
+    },
+    player_color = "Teal",
+    tint_color = color(111/255, 205/255, 245/255),
+    board_configs = {
+      {
+        state_id = 3,
+        filters = {
+          allow_if_all = {"Basic Factions"}
+        },
+        supply_dice_config = generate_positions_config.supply_dice_basic,
+        after_regular_setup = "afterRegular_UnitedNations"
+      },
+      {
+        state_id = 4,
+        filters = {
+          allow_if_all = {"Advanced Factions"}
+        },
+        supply_dice_config = {
+          params = generate_position_parameters.supply_dice,
+          multipliers = {
+            {0,0},{0,1},{0,2},{0,3},{0,4},
+            {2,0},{2,1},{2,2},{2,3},
+            {4,0},{4,1},{4,2},
+            {5,0},
+            {6,0},{6,1},
+            {8,0},{8,1}
+          }
+        }
+      }
+    }
+  },
+  {
+    name = "The Zheng-Yi Brotherhood",
+    filters = {
+      deny_if_any = {"Orange"}
+    },
+    player_color = "Orange",
+    tint_color = color(243/255, 101/255, 30/255),
+    board_configs = {
+      {
+        state_id = 5,
+        filters = {
+          allow_if_all = {"Basic Factions"}
+        },
+        supply_dice_config = generate_positions_config.supply_dice_basic,
+        after_regular_setup = "afterRegular_ZhengiYi"
+      },
+      {
+        state_id = 6,
+        filters = {
+          allow_if_all = {"Advanced Factions"}
+        },
+        supply_dice_config = {
+          params = generate_position_parameters.supply_dice,
+          multipliers = {
+            {0,0},{0,1},{0,2},{0,3},{0,4},
+            {2,0},{2,1},{2,2},{2,3},
+            {4,0},{4,1},{4,2},
+            {6,0},{6,1},
+            {8,0},{8,1},{8,2}
+          }
+        }
+      }
+    }
+  },
+  {
+    name = "Disciples Of The Cosmic Tabernacle",
+    filters = {
+      deny_if_any = {"2 Player", "White"}
+    },
+    player_color = "White",
+    tint_color = color(255/255, 255/255, 255/255),
+    board_configs = {
+      {
+        state_id = 7,
+        filters = {
+          allow_if_all = {"Basic Factions"}
+        },
+        supply_dice_config = generate_positions_config.supply_dice_basic,
+        after_regular_setup = "afterRegular_Disciples"
+      },
+      {
+        state_id = 8,
+        filters = {
+          allow_if_all = {"Advanced Factions"}
+        },
+        supply_dice_config = {
+          params = generate_position_parameters.supply_dice,
+          multipliers = {
+            {0,0},{0,1},{0,2},{0,3},{0,4},
+            {2,0},{2,1},{2,2},{2,3},{2,4},
+            {4,0},{4,1},{4,2},
+            {6,0},{6,1},
+            {8,0},{8,1}
+          }
+        }
+      }
+    }
+  }
+}
+
+tech_board = {
+  states = {
+    {state_id = 1, guid = "d6e8fb", filters = {allow_if_any = {"4 Player"}}},
+    {state_id = 2, guid = "6bee12", filters = {allow_if_any = {"3 Player"}}},
+    {state_id = 3, guid = "aeeab4", filters = {allow_if_any = {"2 Player"}}}
+  },
+  card_positions_config = {
+    tier1 = {
+      params = generate_position_parameters.tech_cards,
+      multipliers = {{0,0},{0,2},{0,4},{0,6}}
+    },
+    tier2 = {
+      params = generate_position_parameters.tech_cards,
+      multipliers = {{1,0},{1,1},{1,3},{1,4},{1,5},{1,6}}
+    },
+    tier3 = {
+      params = generate_position_parameters.tech_cards,
+      multipliers = {{2,0},{2,2},{2,3},{2,4},{2,5},{2,6}}
+    },
+    tier4 = {
+      params = generate_position_parameters.tech_cards,
+      multipliers = {{3,1},{3,3},{3,5}}
+    }
+  },
+  pawn_starting_positions_config = {
+    params = generate_position_parameters.pawns,
+    multipliers = {{0},{1},{2},{3}}
+  },
+  scripting_zone_guid = "f388a4"
+}
+
+events = {
+  level2 = {
+    always_guid = "345a73",
+    random_guid = "ea592d",
+    positions_config = tech_board.card_positions_config.tier2
+  },
+  level3 = {
+    always_guid = "2c0ac0",
+    random_guid = "1764ce",
+    positions_config = tech_board.card_positions_config.tier3
+  }
+}
+
+tech_deck_guids = {
+  tier1 = "9b211a",
+  tier2 = "e89590",
+  tier3 = "09e67d",
+  tier4 = "69b948"
+}
+
+tech_tableau = {
+  guids = {
+    tier = "6b9259",
+    color = "176f9b",
+    ui_obj = "5cf49e"
+  },
+  color_order = {"Blue","Green","Yellow","Red"},
+  discard_offset = Vector({0.00, 0.08, 2.75}), -- from color tile
+  position_configs = {
+    tier2 = {
+      deck = {
+        params = generate_position_parameters.tableau_decks,
+        multipliers = {{-1}}
+      },
+      card = {
+        params = generate_position_parameters.tableau_cards,
+        multipliers = {{0,-1},{1,-1},{2,-1},{3,-1}}
+      }
+    },
+    tier3 = {
+      deck = {
+        params = generate_position_parameters.tableau_decks,
+        multipliers = {{0}}
+      },
+      card = {
+        params = generate_position_parameters.tableau_cards,
+        multipliers = {{0,0},{1,0},{2,0},{3,0}}
+      }
+    },
+    tier4 = {
+      deck = {
+        params = generate_position_parameters.tableau_decks,
+        multipliers = {{1}}
+      },
+      card = {
+        params = generate_position_parameters.tableau_cards,
+        multipliers = {{0,1},{1,1},{2,1},{3,1}}
+      }
+    }
+  }
+}
+
+planet_deck_guids = {
+  starter_a = "41f937",
+  a = "0c46a9",
+  b = "0c0343"
+}
+
+sol_positions = {
+  Vector({-2.20, 0.49, -7.81}),
+  Vector({-0.67, 0.49, -9.33}),
+  Vector({-0.67, 0.49, -7.81}),
+  Vector({-2.20, 0.49, -9.33}),
+  Vector({-1.44, 0.49, -8.57})
+}
+
+exploration_board = {
+  states = {
+    {
+      state_id = 1,
+      guid = "1c50a2",
+      filters = {allow_if_any = {"3 Player", "4 Player"}},
+      positions = {
+        planet_a = {Vector({-4.67, 0.17, -3.73}), Vector({4.39, 0.17, -5.68})},
+        planet_b = {Vector({-4.78, 0.17, 7.08}),  Vector({5.04, 0.17, 5.22})},
+        sol = sol_positions,
+        deep_space = {Vector({-0.29, 0.49, -1.11})}
+      }
+    },
+    {
+      state_id = 2,
+      guid = "f6d5ee",
+      filters = {allow_if_any = {"2 Player"}},
+      positions = {
+        planet_a = {Vector({3.82, 0.17, -4.35})},
+        planet_b = {Vector({-4.78, 0.17, 7.08}), Vector({5.04, 0.17, 5.22})},
+        sol = sol_positions,
+        deep_space = {Vector({-3.05, 0.49, -1.75})}
+      }
+    }
+  },
+  scripting_zone_guid = "660306"
+}
+
+achievements = {
+  decks = {
+    a = {
+      deck_guid = "347361",
+      first_play_card_guid = "56d470",
+      card_position = Vector({27.58, 1.50, -9.02})
+    },
+    b = {
+      deck_guid = "e44abd",
+      first_play_card_guid = "6d96f6",
+      card_position = Vector({32.89, 1.50, -9.02})
+    }
+  },
+  blocker = {
+    guid = "3571bc",
+    position = Vector({0.83, 0.16, -0.89}),
+    deny_if_any = {"4 Player"}
+  },
+  scripting_zone_guid = "e22c0d"
+}
+
+manual_factions = {
+  ui_guid = "8323b5",
+  wait = false,
+  i = 1
+}
+
+game_settings = {
+  active_filters = {},
+  pick_factions_manually = false,
+  use_tableau = false,
+  first_play = false,
+  factions = {},
+  setup_start = false,
+  setup_complete = false
+}
+
+open_tableau_tiers = {}
+
+------------------------------------------------
+-- Event triggers
+------------------------------------------------
+
+function onPlayerTurn()
+  if game_settings.setup_complete then
+    autoLockPawn()
+    autoLockExploration()
+    autoLockTechTech()
+    autoLockTechEvent()
+    autoLockTechDice()
+    autoLockAchievement()
+    if game_settings.use_tableau then
+      startLuaCoroutine(Global, "autoTechTableau")
+    end
+  end
+end
+
+function onLoad(script_state) -- in Global this is the only way to read script_state
+  setNonInteractable()
+  initialisePseudoRandom()
+
+  loadScriptState(script_state)
+  if game_settings.setup_start then
+    selectTechBoard() -- prevents players interacting with the board on reload
+    selectExplorationBoard() -- prevents players interacting with the board on reload
+    startLuaCoroutine(Global, "resumeSetUpManualFactions")
+  end
+end
+
+function onSave()
+  if game_settings.setup_start then
+    return saveScriptState(script_state_keys) -- in Global this is the only way to write script_state
+  else
+    return ""
+  end
+end
+
+------------------------------------------------
+-- Automated setup
+------------------------------------------------
+
+function setUp()
+  game_settings.setup_start = true
+  setUpTech()
+  setUpPlanets()
+  setUpAchievements()
+  setUpFactions()
+  game_settings.setup_complete = true
+  return 1
+end
+
+------------------------------------------------
+
+function setUpTech()
+  selectTechBoard()
+  shuffleTechs()
+  placeTech1()
+  setUpEvents()
+  if game_settings.use_tableau then
+    setUpTableau()
+    createTableauSnapPoints()
+  else
+    destroyTableau()
+  end
+  createDeckSnapPoints()
+end
+
+function selectTechBoard()
+  local states = tech_board.states
+  local board = getObjectFromStates(states)
+  local state = pickFiltered(states)
+  local id = state.state_id
+  board = setState(board, id)
+  if set_boards_non_interactable then
+    board.interactable = false
+  else
+    disableTypedStateChange(board)
+  end
+end
+
+function shuffleTechs()
+  for _, guid in pairs(tech_deck_guids) do
+    local deck = getObjectFromGUID(guid)
+    deck.shuffle()
+  end
+end
+
+function placeTech1()
+  local deck_guid = tech_deck_guids.tier1
+
+  local config = tech_board.card_positions_config.tier1
+  local positions = generatePositions(config.params, config.multipliers)
+
+  local states = tech_board.states
+  local board = getObjectFromStates(states)
+  local offset = board.getPosition()
+
+  placeCards(deck_guid, positions, offset, true, true)
+end
+
+function setUpEvents()
+  local states = tech_board.states
+  local board = getObjectFromStates(states)
+  local offset = board.getPosition()
+
+  for _, event in pairs(events) do
+    local always_deck = getObjectFromGUID(event.always_guid)
+    local random_deck = getObjectFromGUID(event.random_guid)
+    random_deck.shuffle()
+    for i = 1, 4 do
+      local card = random_deck.takeObject()
+      always_deck.putObject(card)
+    end
+    random_deck.destruct()
+    always_deck.shuffle()
+
+    local config = event.positions_config
+    local positions = generatePositions(config.params, config.multipliers)
+
+    placeCards(event.always_guid, positions, offset, false)
+  end
+end
+
+function setUpTableau()
+  local tableau_guid = tech_tableau.guids.tier
+  local tableau = getObjectFromGUID(tableau_guid)
+  local offset = tableau.getPosition()
+
+  for tier, tbl in pairs(tech_tableau.position_configs) do
+    local config = tbl.deck
+    local positions = generatePositions(config.params, config.multipliers, offset)
+    local position = positions[1]
+
+    local deck_guid = tech_deck_guids[tier]
+    local deck = getObjectFromGUID(deck_guid)
+
+    position.y = position.y + deck.getBounds().size[2] / 2
+    deck.setPosition(position)
+  end
+  revealTableau("tier2")
+  local ui_obj_guid = tech_tableau.guids.ui_obj
+  local ui_obj = getObjectFromGUID(ui_obj_guid)
+  ui_obj.call("showTier3")
+end
+
+-- after discussion with designer, adding extra randomisation (not in rules)
+-- to even out tableau card probabilities. This extra randomisation is:
+-- 1) shuffle deck before each color is drawn
+-- 2) randomise color order
+function revealTableau(tier)
+  if type(tier) == "table" then
+    tier = tier[1]
+  end
+
+  local deck_guid = tech_deck_guids[tier]
+  local deck = getObjectFromGUID(deck_guid)
+
+  local tableau_guid = tech_tableau.guids.tier
+  local tableau = getObjectFromGUID(tableau_guid)
+  local offset = tableau.getPosition()
+
+  local config = tech_tableau.position_configs[tier].card
+  local positions = generatePositions(config.params, config.multipliers, offset)
+
+  local color_order = tech_tableau.color_order
+  local indices = {1,2,3,4}
+
+  for _ = 1, 4 do
+    local i = math.random(1, #indices)
+    local i = table.remove(indices, i)
+    local color = color_order[i]
+    local position = positions[i]
+    local tag = "in"..color
+
+    local parameters = {
+      position = position,
+      flip = true,
+      smooth = false
+    }
+
+    deck.shuffle()
+    repeat
+      local card = deck.takeObject(parameters)
+      local match = card.hasTag(tag)
+      if not match then
+        deck.putObject(card)
+      end
+    until match
+  end
+  deck.shuffle()
+
+  table.insert(open_tableau_tiers, tier)
+end
+
+function destroyTableau()
+  for _, guid in pairs(tech_tableau.guids) do
+    local obj = getObjectFromGUID(guid)
+    obj.destruct()
+  end
+end
+
+function createTableauSnapPoints()
+  local tableau_guid = tech_tableau.guids.tier
+  local tableau = getObjectFromGUID(tableau_guid)
+  local offset = tableau.getPosition()
+
+  tiers = {"tier2", "tier3", "tier4"}
+  local points = Global.getSnapPoints()
+  for _, tier in pairs(tiers) do
+    local config = tech_tableau.position_configs[tier].card
+    local positions = generatePositions(config.params, config.multipliers, offset)
+    for _, position in pairs(positions) do
+      local point = {
+        position = position,
+        rotation = Vector({0, 180, 0}),
+        rotation_snap = true,
+        tags = {"Tech"}
+      }
+      table.insert(points, point)
+    end
+  end
+  Global.setSnapPoints(points)
+end
+
+function createDeckSnapPoints()
+  local points = Global.getSnapPoints()
+
+  tiers = {"tier2", "tier3", "tier4"}
+  for _, tier in pairs(tiers) do
+    local deck_guid = tech_deck_guids[tier]
+    local deck = getObjectFromGUID(deck_guid)
+    local position = deck.getPosition()
+
+    local point = {
+      position = position,
+      rotation = Vector({0, 180, 0}),
+      rotation_snap = true,
+      tags = {"Tech"}
+    }
+    table.insert(points, point)
+  end
+  Global.setSnapPoints(points)
+end
+
+------------------------------------------------
+
+function setUpPlanets()
+  selectExplorationBoard()
+  shufflePlanets()
+  placeStarterPlanetA()
+  placePlanetB()
+  mergeShufflePlanetA()
+end
+
+function selectExplorationBoard()
+  local states = exploration_board.states
+  local board = getObjectFromStates(states)
+  local state = pickFiltered(states)
+  local id = state.state_id
+  board = setState(board, id)
+  if set_boards_non_interactable then
+    board.interactable = false
+  else
+    disableTypedStateChange(board)
+  end
+end
+
+function shufflePlanets()
+  for _, guid in pairs(planet_deck_guids) do
+    local deck = getObjectFromGUID(guid)
+    deck.shuffle()
+  end
+end
+
+function placeStarterPlanetA()
+  local states = exploration_board.states
+  local board = getObjectFromStates(states)
+  local state = pickFiltered(states)
+
+  local deck_guid = planet_deck_guids.starter_a
+  local positions = state.positions.planet_a
+  local offset = board.getPosition()
+
+  placeCards(deck_guid, positions, offset, false, true)
+end
+
+function placePlanetB()
+  local states = exploration_board.states
+  local board = getObjectFromStates(states)
+  local state = pickFiltered(states)
+
+  local deck_guid = planet_deck_guids.b
+  local positions = state.positions.planet_b
+  local offset = board.getPosition()
+
+  placeCards(deck_guid, positions, offset, true, true)
+end
+
+function mergeShufflePlanetA()
+  local starter_deck_guid = planet_deck_guids.starter_a
+  local deck_guid = planet_deck_guids.a
+
+  local starter_deck = getObjectFromGUID(starter_deck_guid)
+  local deck = getObjectFromGUID(deck_guid)
+
+  group({deck, starter_deck})
+  deck.shuffle()
+end
+
+------------------------------------------------
+
+function setUpAchievements()
+  selectAchievements()
+  setUpAchievementBlocker()
+end
+
+function selectAchievements()
+  for _, deck in pairs(achievements.decks) do
+    local deck_guid = deck.deck_guid
+    local first_play_card_guid = deck.first_play_card_guid
+    local card_position = deck.card_position
+
+    local deck = getObjectFromGUID(deck_guid)
+    local first_play_card = getObjectFromGUID(first_play_card_guid)
+
+    if game_settings.first_play then
+      first_play_card.setLock(true)
+    else
+      first_play_card.putObject(deck)
+      deck.shuffle()
+      placeCards(deck_guid, {card_position}, zero_vector, true, true)
+    end
+    deck.destruct()
+  end
+end
+
+function setUpAchievementBlocker()
+  local config = achievements.blocker
+  local guid = config.guid
+  local position = config.position + achievements.decks.a.card_position
+
+  local blocker = getObjectFromGUID(guid)
+  local use_blocker = not areElementsAny(config.deny_if_any, game_settings.active_filters)
+
+  if use_blocker then
+    blocker.setPosition(position)
+    blocker.setLock(true)
+  else
+    blocker.destruct()
+  end
+end
+
+------------------------------------------------
+
+function setUpFactions()
+  Turns.enable = false
+  destroyPlayerZones()
+  placeStartingPlayerMarker()
+  if game_settings.pick_factions_manually then
+    seatPlayersRandomly()
+    manualFactionSelection()
+    resetFactions()
+    recolorPlayersAndHands()
+  else
+    randomiseFactions()
+    seatPlayersRandomly()
+  end
+  destroySelectionUI()
+  placePlayerPawns()
+  setUpStartingResources()
+  doAfterRegularSetup()
+  setUpTurns()
+  Turns.enable = true
+end
+
+function resumeSetUpManualFactions()
+  if manual_factions.wait then
+    manualFactionSelection()
+    resetFactions()
+    recolorPlayersAndHands()
+
+    destroySelectionUI()
+    placePlayerPawns()
+    setUpStartingResources()
+    doAfterRegularSetup()
+    setUpTurns()
+    Turns.enable = true
+  end
+  return 1
+end
+
+function destroyPlayerZones()
+  local player_zones = inverseFilter(player_zones)
+  for _, player_zone in pairs(player_zones) do
+    destroyObjects(player_zone)
+    destroyZones(player_zone)
+    destroySnapPoints(player_zone.tag)
+  end
+end
+
+function destroyObjects(player_zone)
+  for _, obj in pairs(getObjectsWithTag(player_zone.tag)) do
+    obj.destruct()
+  end
+end
+
+function destroyZones(player_zone)
+  local hand_zone_guid = player_zone.hand_zone_guid
+  local hand_zone = getObjectFromGUID(hand_zone_guid)
+  hand_zone.destruct()
+  local scripting_zone_guid = player_zone.scripting_zone_guid
+  local scripting_zone = getObjectFromGUID(scripting_zone_guid)
+  scripting_zone.destruct()
+end
+
+function placeStartingPlayerMarker()
+  local player_zone = pickFiltered(player_zones)
+  local board = getPlayerBoard(player_zone)
+
+  local marker_guid = starting_player_marker.guid
+  local marker = getObjectFromGUID(marker_guid)
+
+  local position = board.getPosition() + starting_player_marker.offset
+  marker.setPosition(position)
+  marker.setLock(true)
+end
+
+function seatPlayersRandomly()
+  local players_to_seat = {}
+  for _, color in pairs(getSeatedPlayers()) do
+    local player = colorToPlayer(color)
+    table.insert(players_to_seat, player)
+    player.changeColor("Grey")
+  end
+
+  waitFrames(1) -- otherwise hand cursor flickers
+
+  for _, hand_zone in pairs(Hands.getHands()) do
+    if #players_to_seat == 0 then
+      players_to_seat = Player.getSpectators()
+      if #players_to_seat == 0 then
+        return
+      end
+    end
+
+    local i = math.random(1, #players_to_seat)
+    local player = table.remove(players_to_seat, i)
+    local color = hand_zone.getValue()
+    player.changeColor(color)
+  end
+end
+
+function manualFactionSelection()
+  local player_zones = filter(player_zones)
+  local player_count = #player_zones
+  for i = manual_factions.i, player_count do
+    manual_factions.i = i
+    local player_zone = player_zones[player_count - i + 1]
+    selectFaction(player_zone)
+  end
+end
+
+function resetFactions()
+  local player_zones = filter(player_zones)
+  local factions = game_settings.factions
+  for i, player_zone in ipairs(player_zones) do
+    setFaction(player_zone, factions[i])
+  end
+end
+
+function recolorPlayersAndHands()
+  local configs = {}
+
+  local factions = game_settings.factions
+  for i, faction in ipairs(factions) do
+    configs[i] = {color = faction.player_color}
+  end
+
+  local player_zones = filter(player_zones)
+  for i, player_zone in ipairs(player_zones) do
+    local guid = player_zone.hand_zone_guid
+    local zone = getObjectFromGUID(guid)
+    configs[i].zone = zone
+    local zone_color = zone.getValue()
+    local player = colorToPlayer(zone_color)
+    if player ~= nil then
+      configs[i].player = player
+      player.changeColor("Grey")
+    end
+  end
+
+  waitFrames(1)
+
+  for _, config in pairs(configs) do
+    config.zone.setValue(config.color)
+    if config.player ~= nil then
+      config.player.changeColor(config.color)
+    end
+  end
+end
+
+function destroySelectionUI()
+  local guid = manual_factions.ui_guid
+  local obj = getObjectFromGUID(guid)
+  obj.destruct()
+end
+
+function randomiseFactions()
+  local player_zones = filter(player_zones)
+  for i, player_zone in ipairs(player_zones) do
+    local faction = randomFaction(player_zone)
+    local color = faction.player_color
+    recolorPlayerHand(player_zone, color)
+    addFilter(color)  -- so no other zone gets assigned a faction with this player color
+    table.insert(game_settings.factions, faction)
+  end
+end
+
+function placePlayerPawns()
+  local states = tech_board.states
+  local board = getObjectFromStates(states)
+  local offset = board.getPosition()
+
+  local config = tech_board.pawn_starting_positions_config
+  local positions = generatePositions(config.params, config.multipliers, offset)
+
+  local player_zones = filter(player_zones)
+  for i, player_zone in ipairs(player_zones) do
+    local pawn = getPlayerPawn(player_zone)
+    local position = positions[i]
+    pawn.setPosition(position)
+  end
+end
+
+function setUpStartingResources()
+  destroyOre()
+  giveStartingOre()
+  placeStartingShips()
+end
+
+function doAfterRegularSetup()
+  local factions = game_settings.factions
+  local player_zones = filter(player_zones)
+  for i, player_zone in ipairs(player_zones) do
+    local faction = factions[i]
+    local config = pickFiltered(faction.board_configs)
+    local after_regular = config.after_regular_setup
+    if after_regular ~= nil then
+      _G[after_regular](player_zone)
+    end
+  end
+end
+
+function setUpTurns()
+  local player_zones = filter(player_zones)
+  local order = {}
+  for _, player_zone in pairs(player_zones) do
+    local hand_zone_guid = player_zone.hand_zone_guid
+    local hand_zone = getObjectFromGUID(hand_zone_guid)
+    local color = hand_zone.getValue()
+    table.insert(order, color)
+  end
+  Turns.type = 2 -- custom turn order
+  Turns.order = order
+  Turns.turn_color = order[1]
+end
+
+------------------------------------------------
+-- Changing factions
+------------------------------------------------
+
+function randomFaction(player_zone)
+  local faction = pickFiltered(factions, true)
+  local board_config = setFaction(player_zone, faction)
+  return faction, board_config
+end
+
+function setFaction(player_zone, faction)
+  recolorPlayerPieces(player_zone, faction)
+
+  local board_config = pickFiltered(faction.board_configs)
+  setPlayerBoard(player_zone, board_config)
+
+  resetDiceRotation(player_zone)
+  arrangeNonSupplyDice(player_zone,{5,1})
+  arrangeSupplyDice(player_zone, board_config)
+
+  return board_config
+end
+
+function recolorPlayerPieces(player_zone, faction)
+  local player_tag = player_zone.tag
+  local tint_color = faction.tint_color
+  for _, obj_tag in pairs(object_tags_to_recolor) do
+    local tags = {player_tag, obj_tag}
+    local objects = getObjectsWithAllTags(tags)
+    for _, obj in pairs(objects) do
+      obj.setColorTint(tint_color)
+    end
+  end
+end
+
+function recolorPlayerHand(player_zone, color)
+  local hand_zone_guid = player_zone.hand_zone_guid
+  local hand_zone = getObjectFromGUID(hand_zone_guid)
+  hand_zone.setValue(color)
+end
+
+function setPlayerBoard(player_zone, config)
+  local board = getPlayerBoard(player_zone)
+  board = setState(board, config.state_id)
+  disableTypedStateChange(board)
+end
+
+function resetDiceRotation(player_zone)
+  local tags = {"Dice", player_zone.tag}
+  local dice = getObjectsWithAllTags(tags)
+  local i = 1
+  for rotation, count in pairs(starting_dice_rotations) do
+    while count > 0 do
+      dice[i].setRotation(d6_rotations[rotation])
+      i = i + 1
+      count = count - 1
+    end
+  end
+end
+
+function arrangeNonSupplyDice(player_zone, rotation_values)
+  local config = generate_positions_config.starting_nonsupply_dice
+  local board = getPlayerBoard(player_zone)
+  local offset = board.getPosition()
+  local positions = generatePositions(config.params, config.multipliers, offset)
+
+  local i = 1
+
+  for _, rotation_value in pairs(rotation_values) do
+    local dice = getPlayerDice(player_zone, rotation_value)
+    for _, die in pairs(dice) do
+      die.setPosition(positions[i])
+      i = i + 1
+    end
+  end
+end
+
+function arrangeSupplyDice(player_zone, board_config)
+  local board = getPlayerBoard(player_zone)
+  local offset = board.getPosition()
+
+  local config = board_config.supply_dice_config
+  local positions = generatePositions(config.params, config.multipliers, offset)
+
+  local supply_dice = getPlayerDice(player_zone, 6)
+
+  for i, position in ipairs(positions) do
+    supply_dice[i].setPosition(position)
+  end
+end
+
+------------------------------------------------
+-- Manually Select Factions
+------------------------------------------------
+
+function selectFaction(player_zone)
+  local board = getPlayerBoard(player_zone)
+
+  local ui_obj_guid = manual_factions.ui_guid
+  local ui_obj = getObjectFromGUID(ui_obj_guid)
+
+  local position = ui_obj.getPosition()
+  position.x = board.getPosition().x
+  ui_obj.setPosition(position)
+
+  manual_factions.player_zone = player_zone
+  manualSetFaction({pickFiltered(factions, true)})
+  local params = {factions = filter(factions)}
+  ui_obj.call("newSelection", params)
+
+  manual_factions.wait = true
+  while manual_factions.wait do
+    coroutine.yield(0)
+  end
+end
+
+function manualSetFaction(params)
+  local player_zone = manual_factions.player_zone
+  local faction = params[1]
+  manual_factions.current_faction = faction
+  setFaction(player_zone, faction)
+end
+
+function manualLockFaction()
+  local faction = manual_factions.current_faction
+  addFilter(faction.player_color)
+  table.insert(game_settings.factions, 1, faction)
+  manual_factions.wait = false
+end
+
+------------------------------------------------
+-- Starting faction resources
+------------------------------------------------
+
+function destroyOre()
+  local objects = getObjectsWithTag("Ore")
+  for _, obj in pairs(objects) do
+    obj.destruct()
+  end
+end
+
+function giveStartingOre()
+  local player_zones = filter(player_zones)
+  for i, player_zone in ipairs(player_zones) do
+    local ore_to_give = starting_ore[i]
+    for j = 1, ore_to_give do
+      placeOre(player_zone)
+    end
+  end
+end
+
+function placeOre(player_zone)
+  local board = getPlayerBoard(player_zone)
+  local offset = board.getPosition()
+  local params = generate_position_parameters.ore
+  local multipliers = {
+    {
+      math.random() * 2 - 1,
+      math.random() * 2 - 1
+    }
+  }
+  local positions = generatePositions(params, multipliers, offset)
+
+  local ore_bag = getOreBag(player_zone)
+  local take_params = {position = positions[1], smooth = false}
+  ore_bag.takeObject(take_params)
+end
+
+function placeStartingShips()
+  local player_zones = filter(player_zones)
+  for _, player_zone in pairs(player_zones) do
+    local dice = getPlayerDice(player_zone, 1)
+    placeInSol(dice[1])
+  end
+end
+
+------------------------------------------------
+-- After Regular Setup
+------------------------------------------------
+
+function afterRegular_Nishida(player_zone)
+  for i = 1, 2 do
+    placeOre(player_zone)
+  end
+end
+
+function afterRegular_UnitedNations(player_zone)
+  local die = getSupplyDie(player_zone, {4,2})
+  die.setRotation(d6_rotations[5])
+  arrangeNonSupplyDice(player_zone,{5})
+end
+
+function afterRegular_ZhengiYi(player_zone)
+  local die = getSupplyDie(player_zone, {0,4})
+  die.setRotation(d6_rotations[1])
+  placeInSol(die)
+end
+
+function afterRegular_Disciples(player_zone)
+  placeOre(player_zone)
+  local dice = getPlayerDice(player_zone, 1)
+  local die = dice[1]
+  placeInDeepSpace(die)
+end
+
+------------------------------------------------
+-- Auto-locking
+------------------------------------------------
+
+function autoLockPawn()
+  local pawns = getObjectsWithTag("Pawn")
+  for _, pawn in pairs(pawns) do
+    pawn.setLock(true)
+  end
+  local player_zone = getActivePlayerZone()
+  local tags = {"Pawn", player_zone.tag}
+  local active_pawns = getObjectsWithAllTags(tags)
+  if next(active_pawns) then
+    local active_pawn = active_pawns[1]
+    active_pawn.setLock(false)
+  end
+end
+
+function autoLockExploration()
+  local scripting_zone_guid = exploration_board.scripting_zone_guid
+  local tags = {"Planet", "Event"}
+  local objects = getObjectsWithAnyTagsInZone(scripting_zone_guid, tags)
+  for _, obj in pairs(objects) do
+    obj.setLock(true)
+  end
+end
+
+function autoLockTechTech()
+  local scripting_zone_guid = tech_board.scripting_zone_guid
+  local objects = getObjectsWithAnyTagsInZone(scripting_zone_guid, {"Tech"})
+  for _, obj in pairs(objects) do
+    obj.setLock(true)
+  end
+end
+
+function autoLockTechEvent()
+  local scripting_zone_guid = tech_board.scripting_zone_guid
+  local objects = getObjectsWithAnyTagsInZone(scripting_zone_guid, {"Event"})
+  for _, obj in pairs(objects) do
+    if not obj.is_face_down then
+      obj.setLock(true)
+    end
+  end
+end
+
+function autoLockTechDice()
+  local scripting_zone_guid = tech_board.scripting_zone_guid
+  local dice = getObjectsWithAnyTagsInZone(scripting_zone_guid, {"Dice"})
+  for _, die in pairs(dice) do
+    if not die.locked then
+      sortTechDie(die)
+      die.setLock(true)
+    end
+  end
+end
+
+function autoLockAchievement()
+  local scripting_zone_guid = achievements.scripting_zone_guid
+  local tags = {"Event", "Disc", "Dice"}
+  local objects = getObjectsWithAnyTagsInZone(scripting_zone_guid, tags)
+  for _, obj in pairs(objects) do
+    obj.setLock(true)
+  end
+end
+
+function sortTechDie(die)
+  local scripting_zone_guid = tech_board.scripting_zone_guid
+  local techs = getObjectsWithAnyTagsInZone(scripting_zone_guid, {"Tech"})
+  local closest_tech = techs[1]
+  local current_distance = 10000
+  for _, tech in pairs(techs) do
+    local distance = die.getPosition():distance(tech.getPosition())
+    if distance < current_distance then
+      closest_tech = tech
+      current_distance = distance
+    end
+  end
+  local offset = closest_tech.getPosition()
+  offset.y = 1.65 -- because sometimes the tech card is on top of an event
+  local config = generate_positions_config.tech_dice
+  local positions = generatePositions(config.params, config.multipliers, offset)
+  placeInPositions(die, positions)
+end
+
+------------------------------------------------
+-- Refill Tech Tableau
+------------------------------------------------
+
+function autoTechTableau()
+  for _, tier in pairs(open_tableau_tiers) do
+    if allResearched(tier) then
+      closeTableau(tier)
+    else
+      refillTableau(tier)
+    end
+  end
+  return 1
+end
+
+function allResearched(tier)
+  local states = tech_board.states
+  local board = getObjectFromStates(states)
+
+  local offset = generate_position_parameters.tech_dice.base + board.getPosition()
+  local config = tech_board.card_positions_config[tier]
+  local positions = generatePositions(config.params, config.multipliers, offset)
+
+  for _, position in pairs(positions) do
+    local die = getObjectAtPosition(position)
+    if die == nil then
+      return false
+    end
+  end
+
+  return true
+end
+
+function closeTableau(tier)
+  local tier = "tier2"
+  broadcastToAll("All "..tier.." technologies have been researched.".."\n Closing "..tier.." tableau", "White")
+  local tableau_guid = tech_tableau.guids.tier
+  local tableau = getObjectFromGUID(tableau_guid)
+  local offset = tableau.getPosition()
+
+  local config = tech_tableau.position_configs[tier].deck
+  local positions = generatePositions(config.params, config.multipliers, offset)
+  local position = positions[1]
+  local deck = getObjectAtPosition(position, 0.2)
+
+  local config = tech_tableau.position_configs[tier].card
+  local positions = generatePositions(config.params, config.multipliers, offset)
+
+  for _, position in pairs(positions) do
+    local card = getObjectAtPosition(position)
+    if card ~= nil then
+      deck = deck.putObject(card)
+      waitSeconds(0.5)
+    end
+  end
+  deck.shuffle()
+
+  for i, value in ipairs(open_tableau_tiers) do
+    if value == tier then
+      table.remove(open_tableau_tiers, i)
+    end
+  end
+end
+
+function refillTableau(tier)
+  local tableau_guid = tech_tableau.guids.tier
+  local tableau = getObjectFromGUID(tableau_guid)
+  local offset = tableau.getPosition()
+
+  local config = tech_tableau.position_configs[tier].deck
+  local positions = generatePositions(config.params, config.multipliers, offset)
+  local deck_position = positions[1]
+  local deck = getObjectAtPosition(deck_position, 0.2)
+
+  local config = tech_tableau.position_configs[tier].card
+  local positions = generatePositions(config.params, config.multipliers, offset)
+
+  local color_order = tech_tableau.color_order
+  local tableau_guid = tech_tableau.guids.color
+  local tableau = getObjectFromGUID(tableau_guid)
+  local discard_position = tableau.getPosition() + tech_tableau.discard_offset
+
+  for i, position in ipairs(positions) do
+    local card = getObjectAtPosition(position)
+    if card == nil then
+      local color = color_order[i]
+      local tag = "in"..color
+      broadcastToAll("Refilling "..color.." "..tier.." technology", color)
+      repeat
+        card, deck = placeTableauCard(deck, position)
+        if card.hasTag(tag) then
+          broadcastToAll("Keep "..card.getName(), color)
+        else
+          card.setPositionSmooth(discard_position)
+          broadcastToAll("Discard "..card.getName(), "Grey")
+          if deck == nil then
+            waitSeconds(1)
+          end
+        end
+      until card.hasTag(tag) or deck == nil
+
+      local discard_deck = getObjectAtPosition(discard_position, 0.2)
+      if discard_deck ~= nil then
+        discard_deck.flip()
+        waitSeconds(1)
+        if discard_deck.type == "Deck" then
+          discard_deck.shuffle()
+          waitSeconds(1)
+        end
+
+        if deck ~= nil then
+          displace(deck, Vector({0,1,0}))
+        end
+        discard_deck.setPositionSmooth(deck_position)
+        waitSeconds(2)
+        deck = getObjectAtPosition(deck_position, 0.2)
+      end
+
+      if not card.hasTag(tag) then
+        broadcastToAll("No "..color.." "..tier.." left in deck", color)
+        card, deck = placeTableauCard(deck, position)
+        broadcastToAll("Keep random card "..card.getName(), color)
+      end
+    end
+  end
+end
+
+function placeTableauCard(deck, position)
+  local parameters = {
+    position = position,
+    flip = true
+  }
+
+  local card = deck
+  if deck.type == "Deck" then
+    card = deck.takeObject(parameters)
+    if deck.remainder ~= nil then
+      deck = deck.remainder
+    end
+  else
+    card.flip()
+    card.setPositionSmooth(position)
+    deck = nil
+  end
+
+  waitSeconds(1)
+  return card, deck
+end
+
+------------------------------------------------
+-- Mod-specific Utility functions
+------------------------------------------------
+
+function setNonInteractable()
+  for _, tbl in pairs(hidden_pieces_guids) do
+    for _, guid in pairs(tbl) do
+      local obj = getObjectFromGUID(guid)
+      if obj ~= nil then
+        obj.interactable = false
+      end
+    end
+  end
+end
+
+function generatePositions(params, multipliers, base_offset)
+  base_offset = base_offset or zero_vector
+
+  local base = params.base + base_offset
+  local positions = {}
+  for _, multiplier in pairs(multipliers) do
+    local position = base
+    for i, offset in ipairs(params.offsets) do
+      position = position + offset * multiplier[i]
+    end
+    table.insert(positions, position)
+  end
+  return positions
+end
+
+function getPlayerBoard(player_zone)
+  local tags = {"Board", player_zone.tag}
+  local objects = getObjectsWithAllTags(tags)
+  return objects[1]
+end
+
+function getOreBag(player_zone)
+  local tags = {"OreBag", player_zone.tag}
+  local objects = getObjectsWithAllTags(tags)
+  return objects[1]
+end
+
+function getPlayerDice(player_zone, rotation_value)
+  local tags = {"Dice", player_zone.tag}
+  local dice = getObjectsWithAllTags(tags)
+
+  if rotation_value == nil then
+    return dice
+  else
+    return filterRotationValue(dice, rotation_value)
+  end
+end
+
+function getPlayerPawn(player_zone)
+  local tags = {"Pawn", player_zone.tag}
+  local objects = getObjectsWithAllTags(tags)
+  return objects[1]
+end
+
+function filter(tbl, keep_key, active_filters)
+  active_filters = active_filters or game_settings.active_filters
+  keep_key = keep_key or false
+
+  output = {}
+  for k, v in pairs(tbl) do
+    local filters = v.filters or {}
+    local deny_if_any  = filters.deny_if_any or {}
+    local allow_if_any = filters.allow_if_any
+    local deny_if_all  = filters.deny_if_all
+    local allow_if_all = filters.allow_if_all or {}
+
+    local insert =
+      not areElementsAny(deny_if_any , active_filters) and
+          areElementsAny(allow_if_any, active_filters) and
+      not areElementsAll(deny_if_all , active_filters) and
+          areElementsAll(allow_if_all, active_filters)
+    if insert then
+      if keep_key then
+        output[k] = v
+      else
+        table.insert(output, v)
+      end
+    end
+  end
+  return output
+end
+
+function inverseFilter(tbl, keep_key, active_filters)
+  keep_key = keep_key or false
+
+  local filtered = filter(tbl, true, active_filters)
+  local filtered_keys = getTableKeys(filtered)
+  local inverseFiltered = {}
+  for k, v in pairs(tbl) do
+    if not isElement(k, filtered_keys) then
+      if keep_key then
+        inverseFiltered[k] = v
+      else
+        table.insert(inverseFiltered, v)
+      end
+    end
+  end
+  return inverseFiltered
+end
+
+function addFilter(string)
+  local active_filters = game_settings.active_filters
+  if not isElement(string, active_filters) then
+    table.insert(active_filters, string)
+  end
+end
+
+function removeFilter(string)
+  local active_filters = game_settings.active_filters
+  for i, v in ipairs(active_filters) do
+    if string == v then
+      table.remove(active_filters, i)
+    end
+  end
+end
+
+function pickFiltered(tbl, random, active_filters)
+  random = random or false
+
+  local filtered_table = filter(tbl, false, active_filters)
+  if #filtered_table == 0 then
+    return nil
+  end
+  if random then
+    return pickRandom(filtered_table)
+  else
+    return filtered_table[1]
+  end
+end
+
+function getSupplyDie(player_zone, multiplier)
+  local board = getPlayerBoard(player_zone)
+  local offset = board.getPosition()
+
+  local params = generate_position_parameters.supply_dice
+  local positions = generatePositions(params, {multiplier}, offset)
+  local die = getObjectAtPosition(positions[1])
+
+  return die
+end
+
+function placeInSol(die)
+  local states = exploration_board.states
+  local state = pickFiltered(states)
+  local positions = state.positions.sol
+  local board = getObjectFromStates(states)
+  local offset = board.getPosition()
+  placeInPositions(die, positions, offset)
+end
+
+function placeInDeepSpace(die)
+  local states = exploration_board.states
+  local state = pickFiltered(states)
+  local positions = state.positions.deep_space
+  local board = getObjectFromStates(states)
+  local offset = board.getPosition()
+  placeInPositions(die, positions, offset)
+end
+
+function nearPlayerBoard(obj)
+  local player_zone = pickFiltered(player_zones)
+  local ore_bag = getOreBag(player_zone)
+  local max_z = ore_bag.getPosition().z
+  local obj_z = obj.getPosition().z
+
+  return obj_z <= max_z
+end
+
+function getActivePlayerZone()
+  local player_zones = filter(player_zones)
+  if not Turns.enable then
+    return player_zones[1] -- prevents script errors when reloading mod
+  end
+  local active_color = Turns.turn_color
+  local order = Turns.order
+  for i, color in ipairs(order) do
+    if color == active_color then
+      return player_zones[i]
+    end
+  end
+end
+
+------------------------------------------------
+-- Generic Utility functions
+------------------------------------------------
+
+function saveScriptState(keys)
+  keys = keys or {}
+  local state = {}
+  state.Xml = self.UI.getXml()
+  for _, key in pairs(keys) do
+    state[key] = _G[key]
+  end
+  local script_state = JSON.encode(state)
+  self.script_state = script_state
+  return script_state
+end
+
+function loadScriptState(script_state)
+  script_state = script_state or self.script_state
+
+  if script_state == nil then return end
+  if script_state == ""  then return end
+
+  local state = JSON.decode(script_state)
+  for key, value in pairs(state) do
+    if key == "Xml" then
+      self.UI.setXml(value)
+    else
+      _G[key] = value
+    end
+  end
+end
+
+function initialisePseudoRandom()
+  -- initialise the random number string
+  -- http://lua-users.org/wiki/MathLibraryTutorial
+  math.randomseed( tonumber(tostring(os.time()):reverse():sub(1,6)) )
+  for i = 1, 5 do
+    math.random()
+  end
+  for i = 1, math.random(1, 5) do
+    math.random()
+  end
+end
+
+function getObjectFromStates(states)
+  for _, state in ipairs(states) do
+    local obj = getObjectFromGUID(state.guid)
+    if obj ~= nil then
+      return obj
+    end
+  end
+  return nil
+end
+
+function placeCards(deck_guid, positions, offset, flip, lock)
+  offset = offset or zero_vector
+  flip = flip or false
+  lock = lock or false
+
+  local deck = getObjectFromGUID(deck_guid)
+  local parameters = {
+    flip = flip,
+    smooth = false
+  }
+  for _, position in pairs(positions) do
+    parameters.position = position + offset
+    local card = deck.takeObject(parameters)
+    if lock then
+      card.setLock(true)
+    end
+  end
+end
+
+function error(msg)
+  local rgb = color(1, 0, 0)
+  broadcastToAll("Error: " .. msg, rgb)
+end
+
+function isElement(element, tbl)
+  for k, v in pairs(tbl) do
+    if element == v then
+      return k
+    end
+  end
+  return false
+end
+
+function areElementsAny(elements, tbl)
+  if elements == nil then
+    return true  -- gives user control of edge case
+  end
+  for _, element in pairs(elements) do
+    if isElement(element, tbl) then
+      return true
+    end
+  end
+  return false
+end
+
+function areElementsAll(elements, tbl)
+  if elements == nil then
+    return false  -- gives user control of edge case
+  end
+  for _, element in pairs(elements) do
+    if not isElement(element, tbl) then
+      return false
+    end
+  end
+  return true
+end
+
+function getObjectsWithAnyTagsInZone(guid, tags)
+  local zone = getObjectFromGUID(guid)
+  if zone == nil then
+    return
+  end
+  print("[getObjectsWithAnyTagsInZone] zone.guid = " .. zone.guid)
+  local objects = {}
+  for _, obj in pairs(zone.getObjects(true)) do
+    for _, tag in pairs(tags) do
+      if obj.hasTag(tag) then
+        table.insert(objects, obj)
+        break
+      end
+    end
+  end
+  return objects
+end
+
+function getTableKeys(tbl)
+  keys = {}
+  for key, _ in pairs(tbl) do
+    table.insert(keys, key)
+  end
+  return keys
+end
+
+function pickRandom(tbl)
+  local keys = getTableKeys(tbl)
+  if #keys == 0 then
+    return nil
+  end
+  local i = math.random(1, #keys)
+  local k = keys[i]
+  local v = tbl[k]
+  return v, k
+end
+
+function waitSeconds(secs)
+  local resume_time = Time.time + secs
+  while Time.time < resume_time do
+    coroutine.yield(0)
+  end
+end
+
+function waitFrames(frames)
+  while frames > 0 do
+    coroutine.yield(0)
+    frames = frames - 1
+  end
+end
+
+function setState(obj, id)
+  if obj.getStateId() ~= id then -- error if trying to set to current state
+    return obj.setState(id)
+  end
+  return obj
+end
+
+function filterRotationValue(objects, value)
+  output = {}
+  for _, obj in pairs(objects) do
+    if obj.getRotationValue() == value then
+      table.insert(output, obj)
+    end
+  end
+  return output
+end
+
+function disableTypedStateChange(obj)
+  obj.tooltip = false
+  obj.max_typed_number = 0
+end
+
+function colorToPlayer(color)
+  players = Player.getPlayers()
+  for _, player in pairs(players) do
+    if player.color == color then
+      return player
+    end
+  end
+end
+
+function getObjectAtPosition(position, margin)
+  for _, obj in pairs(getObjects()) do
+    if obj.getPosition():equals(position, margin) then
+      return obj
+    end
+  end
+end
+
+function placeInPositions(obj, positions, offset)
+  offset = offset or zero_vector
+
+  local bounds = obj.getBounds()
+  local size = bounds.size
+  local diameter = math.min(size.x, size.z)
+  local radius = diameter / 2
+  for i, position in pairs(positions) do
+    position = position + offset
+    obj_there = getObjectAtPosition(position, radius)
+
+    if obj_there == obj then return end
+
+    if obj_there == nil then
+      obj.setPosition(position)
+      break
+    end
+  end
+end
+
+function destroySnapPoints(tag)
+  local all_points = Global.getSnapPoints()
+  local keep_points = {}
+  for _, point in pairs(all_points) do
+    local tags = point.tags
+    if not isElement(tag, tags) then
+      table.insert(keep_points, point)
+    end
+  end
+  Global.setSnapPoints(keep_points)
+end
+
+function displace(obj, vector, bool_collide, bool_fast)
+  local position = obj.getPosition() + vector
+  obj.setPositionSmooth(position, bool_collide, bool_fast)
+end
+
+function onObjectDrop(colorName, object)
+  -- If this isn't a die, just exit
+  if not object.hasTag("Dice") then
+    return
+  end
+
+  for _, zone in ipairs(object.getZones()) do
+    for _, player_zone in ipairs(player_zones) do
+      local resource_zone_guid = player_zone.resource_zone_guid
+      local supply_zone_guid = player_zone.supply_zone_guid
+
+      if zone.guid == resource_zone_guid then
+        object.setRotation(d6_rotations[5])
+        break
+      elseif zone.guid == supply_zone_guid then
+        object.setRotation(d6_rotations[6])
+      end
+    end
+  end
+end

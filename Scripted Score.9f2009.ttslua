@@ -1,0 +1,67 @@
+columns={"Player1", "Player2", "Player3", "Player4"}
+rows=11
+row_multiplier={
+  1,2,3,1,1,1,1,1,1,1,1
+}
+total="_Total"
+
+function onLoad()
+  loadScriptState()
+end
+
+function onSave()
+  local game_settings = Global.getTable("game_settings")
+  if game_settings.setup_start then
+    return saveScriptState()
+  else
+    return ""
+  end
+end
+
+function updateScore(_,changed_value,changed_id)
+  self.UI.setAttribute(changed_id, "text", changed_value)
+  column = string.sub(changed_id, 1, 7)
+  local total_value = 0
+  for i = 1, rows do
+    local id = column .. "_" .. string.format("%02i", i)
+    local value = self.UI.getAttribute(id, "text")
+    if id == changed_id then
+      value = changed_value
+    end
+    value = tonumber(value) or 0
+    total_value = total_value + (value * row_multiplier[i])
+  end
+  if total_value == 0 then
+    total_value = ""
+  end
+  local total_id = column .. total
+  self.UI.setAttribute(total_id, "text", total_value)
+end
+
+function saveScriptState(keys)
+  keys = keys or {}
+  local state = {}
+  state.Xml = self.UI.getXml()
+  for _, key in pairs(keys) do
+    state[key] = _G[key]
+  end
+  local script_state = JSON.encode(state)
+  self.script_state = script_state
+  return script_state
+end
+
+function loadScriptState(script_state)
+  script_state = script_state or self.script_state
+
+  if script_state == nil then return end
+  if script_state == ""  then return end
+
+  local state = JSON.decode(script_state)
+  for key, value in pairs(state) do
+    if key == "Xml" then
+      self.UI.setXml(value)
+    else
+      _G[key] = value
+    end
+  end
+end

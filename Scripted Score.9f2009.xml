@@ -1,0 +1,87 @@
+<Defaults>
+  <InputField
+    class="Score"
+    fontSize="50"
+    textAlignment="MiddleCenter"
+    characterValidation="Integer"
+    characterLimit="2"
+    height="77"
+    width="77"
+    color="clear"
+    onEndEdit="updateScore"
+    />
+  <InputField
+    class="Total"
+    interactable="false"
+    />
+</Defaults>
+
+<GridLayout
+  spacing="57.5 12"
+  cellsize="77 77"
+  startCorner="UpperRight"
+  startAxis="Vertical"
+  height="967"
+  width="480.5"
+  pivot="0.5 1"
+  offsetXY="0 -100">
+  <InputField class="Score" id="Player1_01"/>
+  <InputField class="Score" id="Player1_02"/>
+  <InputField class="Score" id="Player1_03"/>
+  <InputField class="Score" id="Player1_04"/>
+  <InputField class="Score" id="Player1_05"/>
+  <InputField class="Score" id="Player1_06"/>
+  <InputField class="Score" id="Player1_07"/>
+  <InputField class="Score" id="Player1_08"/>
+  <InputField class="Score" id="Player1_09"/>
+  <InputField class="Score" id="Player1_10"/>
+  <InputField class="Score" id="Player1_11"/>
+  <InputField class="Score" id="Player2_01"/>
+  <InputField class="Score" id="Player2_02"/>
+  <InputField class="Score" id="Player2_03"/>
+  <InputField class="Score" id="Player2_04"/>
+  <InputField class="Score" id="Player2_05"/>
+  <InputField class="Score" id="Player2_06"/>
+  <InputField class="Score" id="Player2_07"/>
+  <InputField class="Score" id="Player2_08"/>
+  <InputField class="Score" id="Player2_09"/>
+  <InputField class="Score" id="Player2_10"/>
+  <InputField class="Score" id="Player2_11"/>
+  <InputField class="Score" id="Player3_01"/>
+  <InputField class="Score" id="Player3_02"/>
+  <InputField class="Score" id="Player3_03"/>
+  <InputField class="Score" id="Player3_04"/>
+  <InputField class="Score" id="Player3_05"/>
+  <InputField class="Score" id="Player3_06"/>
+  <InputField class="Score" id="Player3_07"/>
+  <InputField class="Score" id="Player3_08"/>
+  <InputField class="Score" id="Player3_09"/>
+  <InputField class="Score" id="Player3_10"/>
+  <InputField class="Score" id="Player3_11"/>
+  <InputField class="Score" id="Player4_01"/>
+  <InputField class="Score" id="Player4_02"/>
+  <InputField class="Score" id="Player4_03"/>
+  <InputField class="Score" id="Player4_04"/>
+  <InputField class="Score" id="Player4_05"/>
+  <InputField class="Score" id="Player4_06"/>
+  <InputField class="Score" id="Player4_07"/>
+  <InputField class="Score" id="Player4_08"/>
+  <InputField class="Score" id="Player4_09"/>
+  <InputField class="Score" id="Player4_10"/>
+  <InputField class="Score" id="Player4_11"/>
+</GridLayout>
+
+<GridLayout
+  spacing="57.5 12"
+  cellsize="77 77"
+  startCorner="UpperRight"
+  startAxis="Horizontal"
+  height="77"
+  width="480.5"
+  pivot="0.5 1"
+  offsetXY="0 -1125">
+  <InputField class="Score Total" id="Player1_Total"/>
+  <InputField class="Score Total" id="Player2_Total"/>
+  <InputField class="Score Total" id="Player3_Total"/>
+  <InputField class="Score Total" id="Player4_Total"/>
+</GridLayout>
